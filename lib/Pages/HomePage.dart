@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '/Pages/UserPage.dart';
+import 'UserPage.dart';
+import 'ProductPage.dart';
 import '/Providers/NavigationProvider.dart';
 
 class HomePage extends StatelessWidget {
@@ -10,7 +11,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navigation = Provider.of<NavigationProvider>(context);
-    final _pageOptions = [const Users()];
+    final _pageOptions = [const ProductsPage(), const UsersPage()];
 
     return Scaffold(
       body: IndexedStack(
@@ -22,10 +23,12 @@ class HomePage extends StatelessWidget {
         onTap: (index) => navigation.setPage(index),
         elevation: 2,
         items: const [
+          // BottomNavigationBarItem(
+          //     icon: Icon(Icons.local_post_office), label: 'POSTS'),
+          // BottomNavigationBarItem(icon: Icon(Icons.image), label: 'IMAGES'),
+          BottomNavigationBarItem(icon: Icon(Icons.food_bank), label: 'PRODUCTS'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'USERS'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.local_post_office), label: 'POSTS'),
-          BottomNavigationBarItem(icon: Icon(Icons.image), label: 'IMAGES'),
+
         ],
       ),
     );

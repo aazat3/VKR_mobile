@@ -6,6 +6,7 @@ import '/Pages/LoginPage.dart';
 
 import 'Providers/UserProvider.dart';
 import 'Providers/AuthProvider.dart';
+import 'Providers/ProductProvider.dart';
 import 'Providers/NavigationProvider.dart';
 
 
@@ -16,6 +17,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()..tryAutoLogin()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
       ],
       child: const MyApp(),
     ),

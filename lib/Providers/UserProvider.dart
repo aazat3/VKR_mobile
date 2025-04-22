@@ -17,7 +17,7 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await http.get(Uri.parse(APIS.users), headers: {"Accept": "application/json"});
+      final response = await http.get(Uri.parse(APIS.user), headers: {"Accept": "application/json"});
       List jsonData = json.decode(response.body);
       _users = jsonData.map((item) => UserBean.fromJsonMap(item)).toList();
     } catch (e) {

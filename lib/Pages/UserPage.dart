@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 
 import '/Providers/UserProvider.dart';
 
-class Users extends StatefulWidget {
-  const Users({super.key});
+class UsersPage extends StatefulWidget {
+  const UsersPage({super.key});
 
   @override
-  State<Users> createState() => _UsersState();
+    State<UsersPage> createState() => _UsersState();
 }
 
-class _UsersState extends State<Users> {
+class _UsersState extends State<UsersPage> {
   @override
   void initState() {
     super.initState();
