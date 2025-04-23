@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '/ApiList.dart';
 import '/Models/UserModel/AuthResponse.dart';
+import '/Services/DioClient.dart';
 
 class AuthProvider extends ChangeNotifier {
   String? _token;
@@ -13,15 +13,13 @@ class AuthProvider extends ChangeNotifier {
   String get token => _token ?? '';
 
   Future<bool> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse(APIS.login),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+    final response = await DioClient.dio.post(
+      (APIS.login),
+      data: jsonEncode({'email': email, 'password': password}),
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      final authResponse = AuthResponse.fromJson(json);
+      final authResponse = AuthResponse.fromJson(response.data);
       _token = authResponse.token;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('users_access_token', _token!);
@@ -32,10 +30,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> register(String email, String password) async {
-    final response = await http.post(
-      Uri.parse(APIS.register),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+    final response = await DioClient.dio.post(
+      (APIS.register),
+      data: jsonEncode({'email': email, 'password': password}),
     );
 
     return response.statusCode == 200;

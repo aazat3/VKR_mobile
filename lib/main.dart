@@ -8,6 +8,7 @@ import 'Providers/UserProvider.dart';
 import 'Providers/AuthProvider.dart';
 import 'Providers/ProductProvider.dart';
 import 'Providers/NavigationProvider.dart';
+import 'Providers/MealProvider.dart';
 
 
 void main() {
@@ -18,6 +19,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => MealProvider()),
       ],
       child: const MyApp(),
     ),
@@ -30,7 +32,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My App',
+      title: 'Nutrition Tracker',
+      theme: ThemeData.light(useMaterial3: true),
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           return auth.isAuthenticated ? const HomePage() : const LoginPage();

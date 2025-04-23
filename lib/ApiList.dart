@@ -1,7 +1,10 @@
 class APIS {
-    
+  // static final String _baseUrl = "http://aazatserver.ru";
+  // static var products = "$_baseUrl/products";
+
   static var product = "/api/product";
   static var meal = "api/meal";
+
 
   static var login = "/api/auth/login/";
   static var register = "/api/auth/register";
