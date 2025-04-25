@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:logger/logger.dart';
 
 import '/Models/MealModel/MealModel.dart';
 import 'DioClient.dart';
 import 'package:flutter_application_1/ApiList.dart';
+import 'package:flutter_application_1/Models/PaginatedModel/PaginatedResponse.dart';
+
+final logger = Logger();
 
 class MealProvider with ChangeNotifier {
-  List<MealModel> _meals = [];
-  List<MealModel> get meals => _meals;
-
   String selectedPeriod = 'day';
-
   List<String> periods = ['day', 'week', 'month'];
-
   List<FlSpot> getSpots() {
     switch (selectedPeriod) {
       case 'week':
@@ -35,19 +34,32 @@ class MealProvider with ChangeNotifier {
     }
   }
 
+  List<MealModel> _meals = [];
+  String? _nextCursor;
   bool _isLoading = false;
+
+  List<MealModel> get meals => _meals;
   bool get isLoading => _isLoading;
 
-  Future<void> loadMeals({
-    int? size,
-    String? nextCursor,
-    DateTime? startDate,
-    DateTime? endDate,}) async {
+  Future<void> loadMeals({DateTime? startDate, DateTime? endDate}) async {
+    if (_isLoading) return;
+
     _isLoading = true;
     notifyListeners();
 
     try {
-      _meals = await fetchMeals(size: size, nextCursor: nextCursor, startDate: startDate, endDate: endDate);
+      final response = await fetchMeals(
+        size: 50,
+        nextCursor: _nextCursor,
+        startDate: startDate,
+        endDate: endDate,
+      );
+      _meals.addAll(response.items);
+      logger.i(_meals);
+      if (response.items.isNotEmpty) {
+        // _nextCursor = response.items.last.id;
+        _nextCursor = response.nextCursor;
+      }
     } catch (e) {
       _meals = [];
     }
@@ -56,7 +68,7 @@ class MealProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<List<MealModel>> fetchMeals({
+  Future<PaginatedResponse<MealModel>> fetchMeals({
     required int? size,
     required String? nextCursor,
     required DateTime? startDate,
@@ -75,27 +87,24 @@ class MealProvider with ChangeNotifier {
     }
     final response = await DioClient.dio.get(
       APIS.meal,
-      queryParameters: queryParameters,
+      queryParameters: queryParameters
     );
     if (response.statusCode == 200) {
-      final data = response.data as List;
-      return data.map((item) => MealModel.fromJson(item)).toList();
-      // return PaginatedResponse<MealModel>.fromJson(
-      //   response.data,
-      //   (item) => MealModel.fromJson(item),
-      // );
+      // final data = response.data as List;
+      // return data.map((item) => MealModel.fromJson(item)).toList();
+      return PaginatedResponse<MealModel>.fromJson(
+        response.data,
+        (item) => MealModel.fromJson(item),
+      );
     } else {
       throw Exception('Failed to load meals');
     }
   }
 
-  // Future<List<MealModel>> fetchMeals({required startDate, required endDate}) async {
-  //   final response = await DioClient.dio.get(APIS.meal);
-  //   if (response.statusCode == 200) {
-  //     final data = response.data as List;
-  //     return data.map((item) => MealModel.fromJson(item)).toList();
-  //   } else {
-  //     throw Exception('Failed to load meals');
-  //   }
-  // }
+  void reset() {
+    _meals.clear();
+    _nextCursor = '';
+    _isLoading = false;
+    notifyListeners();
+  }
 }

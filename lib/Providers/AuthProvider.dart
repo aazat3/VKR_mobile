@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '/ApiList.dart';
 import '/Models/UserModel/AuthResponse.dart';
-import '/Services/DioClient.dart';
+import '/Providers/DioClient.dart';
 
 class AuthProvider extends ChangeNotifier {
   String? _token;

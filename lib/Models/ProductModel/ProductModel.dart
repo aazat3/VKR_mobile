@@ -16,4 +16,12 @@ class ProductModel {
       energyKcal: (json['energy_kcal'] as num).toDouble() / 100,
     );
   }
+  
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'energy_kcal': energyKcal,
+    };
+  }
 }

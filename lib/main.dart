@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '/Theme/customLightTheme .dart';
+
 import 'Pages/HomePage.dart';
 import '/Pages/LoginPage.dart';
 
-import 'Providers/UserProvider.dart';
 import 'Providers/AuthProvider.dart';
 import 'Providers/ProductProvider.dart';
-import 'Providers/NavigationProvider.dart';
+// import 'Providers/NavigationProvider.dart';
 import 'Providers/MealProvider.dart';
 
 
@@ -16,8 +17,6 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..tryAutoLogin()),
-        ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => MealProvider()),
       ],
@@ -33,7 +32,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Nutrition Tracker',
-      theme: ThemeData.light(useMaterial3: true),
+      theme: customLightTheme,
+      // theme: ThemeData.light(useMaterial3: true),
+      routes: {
+        // '/': (context) => const HomePage(),
+        '/login': (context) => const LoginPage(), // 🔹 ВАЖНО: добавляем маршрут!
+      },
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           return auth.isAuthenticated ? const HomePage() : const LoginPage();

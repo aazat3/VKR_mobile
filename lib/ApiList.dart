@@ -9,6 +9,5 @@ class APIS {
   static var login = "/api/auth/login/";
   static var register = "/api/auth/register";
   static var logout = "/api/auth/logout";
-  static var user = "/user";
 
 }

@@ -2,8 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '/Providers/MealProvider.dart';
 
-class MealPage extends StatelessWidget {
+class MealPage extends StatefulWidget {
   const MealPage({super.key});
+
+  @override
+  _MealPageState createState() => _MealPageState();
+}
+
+class _MealPageState extends State<MealPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Запускаем метод загрузки данных после завершения фазы построения виджетов
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final mealProvider = Provider.of<MealProvider>(context, listen: false);
+      mealProvider.loadMeals();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
