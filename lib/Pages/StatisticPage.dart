@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '/Providers/MealProvider.dart';
 import 'package:intl/intl.dart';
 import '/Models/MealModel/MealModel.dart';
+import 'package:flutter_application_1/View/MealGroupedListView.dart';
 
 class StatisticPage extends StatefulWidget {
   const StatisticPage({super.key});
@@ -25,27 +26,6 @@ class _StatisticPageState extends State<StatisticPage> {
     });
   }
 
-  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? DateTime.now()),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != (isStartDate ? _startDate : _endDate)) {
-      setState(() {
-        if (isStartDate) {
-          _startDate = picked;
-        } else {
-          _endDate = picked;
-        }
-      });
-      // Загружаем данные с фильтрацией по датам
-      final mealProvider = Provider.of<MealProvider>(context, listen: false);
-      mealProvider.loadMeals(startDate: _startDate, endDate: _endDate);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final mealProvider = Provider.of<MealProvider>(context);
@@ -62,110 +42,77 @@ class _StatisticPageState extends State<StatisticPage> {
       body:
           mealProvider.isLoading
               ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                itemCount: groupedMeals.length,
-                itemBuilder: (context, index) {
-                  final date = groupedMeals.keys.elementAt(index);
-                  final meals = groupedMeals[date]!;
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Заголовок с датой
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          _formatDate(date),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
+              : RefreshIndicator(
+                onRefresh: () async => mealProvider.loadMeals(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          // _buildDateFilterButton(context, "Начало", true),
+                          // const SizedBox(width: 16),
+                          // _buildDateFilterButton(context, "Конец", false),
+                          DateSelector(),
+                        ],
                       ),
-
-                      // Список карточек продуктов на эту дату
-                      ...meals.map((meal) => _buildMealCard(meal)),
-                    ],
-                  );
-                },
+                    ),
+                    Expanded(
+                      child: GroupedMealList(groupedMeals: groupedMeals),
+                    ),
+                  ],
+                ),
               ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () => mealProvider.loadMeals(),
         child: const Icon(Icons.refresh),
       ),
     );
   }
+}
 
-  Widget _buildMealCard(MealModel meal) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Название продукта
-            Row(
-              children: [
-                const Icon(Icons.fastfood, color: Colors.orange),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    meal.product?.name ?? 'Продукт неизвестен',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Вес и калории
-            Row(
-              children: [
-                const Icon(Icons.scale, color: Colors.blue),
-                const SizedBox(width: 8),
-                Text('${meal.weight} г'),
-                const Spacer(),
-                const Icon(Icons.local_fire_department, color: Colors.red),
-                const SizedBox(width: 8),
-                Text(
-                  '${((meal.product?.energyKcal ?? 0) * meal.weight / 100).toStringAsFixed(1)} ккал',
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Время
-            Row(
-              children: [
-                const Icon(
-                  Icons.access_time,
-                  size: 20,
-                  color: Colors.deepPurple,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${meal.time.hour.toString().padLeft(2, '0')}:${meal.time.minute.toString().padLeft(2, '0')}',
-                ),
-              ],
-            ),
-          ],
+// DateSelector виджет
+class DateSelector extends StatelessWidget {
+  const DateSelector({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final mealProvider = Provider.of<MealProvider>(context);
+    // final selectedDate = mealProvider.selectedDate;
+    final selectedDate = DateTime.now();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Дата: ${selectedDate.day.toString().padLeft(2, '0')}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.year}',
+          style: const TextStyle(fontSize: 16),
         ),
-      ),
+        ElevatedButton.icon(
+          onPressed: () async {
+            final picked = await showDateRangePicker(
+              context: context,
+              firstDate: DateTime(0),
+              lastDate: DateTime.now(),
+              initialDateRange: DateTimeRange(
+                start: selectedDate.subtract(const Duration(days: 0)),
+                end: selectedDate,
+              ),
+            );
+            if (picked != null) {
+              // mealProvider.setDateRange(picked);
+              mealProvider.loadMeals(
+                startDate: picked.start,
+                endDate: picked.end,
+              );
+            }
+          },
+          icon: const Icon(Icons.date_range),
+          label: const Text('Выбрать диапазон'),
+        ),
+      ],
     );
-  }
-
-  String _formatDate(String dateKey) {
-    final parts = dateKey.split('-');
-    final date = DateTime(
-      int.parse(parts[0]),
-      int.parse(parts[1]),
-      int.parse(parts[2]),
-    );
-    return "${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}";
   }
 }

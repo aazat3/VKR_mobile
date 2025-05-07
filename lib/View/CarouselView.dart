@@ -1,67 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+// import 'package:carousel_slider/carousel_slider.dart';
 
-final CarouselSliderController _controller = CarouselSliderController();
-final ValueNotifier<int> _currentIndexNotifier = ValueNotifier<int>(0);
+// final CarouselSliderController _controller = CarouselSliderController();
+// final ValueNotifier<int> _currentIndexNotifier = ValueNotifier<int>(0);
 
 class StatisticCarousel extends StatelessWidget {
   const StatisticCarousel({super.key});
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   return LayoutBuilder(
+  //     builder: (context, constraints) {
+  //       return Column(
+  //         children: [
+  //           CarouselSlider(
+  //             carouselController: _controller,
+  //             options: CarouselOptions(
+  //               height: constraints.maxHeight * 0.9,
+  //               // aspectRatio: 1.0,
+  //               enableInfiniteScroll: false,
+  //               enlargeCenterPage: true,
+  //               viewportFraction: 0.8,
+  //               onPageChanged: (index, reason) {
+  //                   _currentIndexNotifier.value = index;
+  //               },
+  //             ),
+  //             items: [
+  //               _buildChartCard("Калории", LineChart(_lineChartData())),
+  //               _buildChartCard("БЖУ", PieChart(_pieChartData())),
+  //               _buildChartCard("График 3", Placeholder()),
+  //             ],
+  //           ),
+  //           ValueListenableBuilder<int>(
+  //             valueListenable: _currentIndexNotifier,
+  //             builder: (context, value, _) {
+  //               return Row(
+  //                 mainAxisAlignment: MainAxisAlignment.center,
+  //                 children: [1, 2, 3].asMap().entries.map((entry) {
+  //                   return GestureDetector(
+  //                     onTap: () => _controller.animateToPage(entry.key),
+  //                     child: Container(
+  //                       width: 12.0,
+  //                       height: 12.0,
+  //                       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+  //                       decoration: BoxDecoration(
+  //                         shape: BoxShape.circle,
+  //                         color: (Theme.of(context).brightness == Brightness.dark
+  //                                 ? Colors.white
+  //                                 : Colors.black)
+  //                             .withOpacity(
+  //                               value == entry.key ? 0.9 : 0.4,
+  //                             ),
+  //                       ),
+  //                     ),
+  //                   );
+  //                 }).toList(),
+  //               );
+  //             },
+  //           )
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Column(
-          children: [
-            CarouselSlider(
-              carouselController: _controller,
-              options: CarouselOptions(
-                height: constraints.maxHeight * 0.9,
-                // aspectRatio: 1.0,
-                enableInfiniteScroll: false,
-                enlargeCenterPage: true,
-                viewportFraction: 0.8,
-                onPageChanged: (index, reason) {
-                    _currentIndexNotifier.value = index;
-                },
-              ),
-              items: [
-                _buildChartCard("Калории", LineChart(_lineChartData())),
-                _buildChartCard("БЖУ", PieChart(_pieChartData())),
-                _buildChartCard("График 3", Placeholder()),
-              ],
-            ),
-            ValueListenableBuilder<int>(
-              valueListenable: _currentIndexNotifier,
-              builder: (context, value, _) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [1, 2, 3].asMap().entries.map((entry) {
-                    return GestureDetector(
-                      onTap: () => _controller.animateToPage(entry.key),
-                      child: Container(
-                        width: 12.0,
-                        height: 12.0,
-                        margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: (Theme.of(context).brightness == Brightness.dark
-                                  ? Colors.white
-                                  : Colors.black)
-                              .withOpacity(
-                                value == entry.key ? 0.9 : 0.4,
-                              ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
-            )
-          ],
-        );
-      },
+    final cards = [
+      _buildChartCard("Калории", LineChart(_lineChartData())),
+      _buildChartCard("БЖУ", PieChart(_pieChartData())),
+      _buildChartCard("График 3", const Placeholder()),
+    ];
+
+    return GridView.count(
+      shrinkWrap: true,
+      crossAxisCount: 2,
+      crossAxisSpacing: 0,
+      mainAxisSpacing: 0,
+      childAspectRatio: 0.9,
+      physics: const NeverScrollableScrollPhysics(),
+      children: cards,
     );
   }
 

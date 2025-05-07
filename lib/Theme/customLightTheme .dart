@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 final ThemeData customLightTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.teal, // Основной акцентный цвет
+    seedColor: Color(0xFF008C8C), // Основной акцентный цвет
     brightness: Brightness.light,
   ),
   useMaterial3: true,
@@ -44,7 +44,7 @@ final ThemeData customLightTheme = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.teal,
+      backgroundColor: Color(0xFF008C8C),
       foregroundColor: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -59,11 +59,11 @@ final ThemeData customLightTheme = ThemeData(
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Colors.teal),
+      borderSide: const BorderSide(color: Color(0xFF008C8C),),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Colors.teal, width: 2),
+      borderSide: const BorderSide(color: Color(0xFF008C8C), width: 2),
     ),
   ),
 );
