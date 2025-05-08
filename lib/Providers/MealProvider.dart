@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-
 import '/Models/MealModel/MealModel.dart';
 import 'DioClient.dart';
 import 'package:flutter_application_1/ApiList.dart';
@@ -9,45 +7,63 @@ class MealProvider with ChangeNotifier {
   List<MealModel> _meals = [];
   List<MealModel> get meals => _meals;
 
-  String selectedPeriod = 'day';
-
-  List<String> periods = ['day', 'week', 'month'];
-
-  List<FlSpot> getSpots() {
-    switch (selectedPeriod) {
-      case 'week':
-        return [
-          FlSpot(0, 180),
-          FlSpot(1, 200),
-          FlSpot(2, 150),
-          FlSpot(3, 210),
-          FlSpot(4, 170),
-          FlSpot(5, 190),
-          FlSpot(6, 220),
-        ];
-      case 'month':
-        return List.generate(
-          30,
-          (i) => FlSpot(i.toDouble(), (150 + i % 5 * 10).toDouble()),
-        );
-      default:
-        return [FlSpot(0, 180), FlSpot(1, 200), FlSpot(2, 150)];
-    }
-  }
-
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  String _searchQuery = '';
+  String get searchQuery => _searchQuery;
+
+  String? _selectedCategory;
+  String? get selectedCategory => _selectedCategory;
+
+  DateTime? _startDate;
+  DateTime? _endDate;
+  DateTime? get startDate => _startDate;
+  DateTime? get endDate => _endDate;
+
+  void setSearchQuery(String query) {
+    _searchQuery = query.toLowerCase();
+    notifyListeners();
+  }
+
+  void setCategoryFilter(String? category) {
+    _selectedCategory = category;
+    notifyListeners();
+  }
+
+ 
+List<MealModel> get filteredMeals {
+  return _meals.where((meal) {
+    final matchesSearch = meal.product?.name
+            .toLowerCase()
+            .contains(_searchQuery.toLowerCase()) ??
+        false;
+
+    final matchesCategory = _selectedCategory == null ||
+        _selectedCategory == 'Все' ||
+        meal.product?.category?.name == _selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  }).toList();
+}
 
   Future<void> loadMeals({
     int? size,
     String? nextCursor,
     DateTime? startDate,
-    DateTime? endDate,}) async {
+    DateTime? endDate,
+  }) async {
     _isLoading = true;
     notifyListeners();
-
+    _startDate = startDate;
+    _endDate = endDate;
     try {
-      _meals = await fetchMeals(size: size, nextCursor: nextCursor, startDate: startDate, endDate: endDate);
+      _meals = await fetchMeals(
+        size: size,
+        nextCursor: nextCursor,
+        startDate: startDate,
+        endDate: endDate,
+      );
     } catch (e) {
       _meals = [];
     }
