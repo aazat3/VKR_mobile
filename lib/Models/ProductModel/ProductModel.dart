@@ -74,45 +74,50 @@ class ProductModel {
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
-    double? toDouble(dynamic value) =>
-        value != null ? (value as num).toDouble() : null;
-
-    return ProductModel(
-      id: json['id'],
-      categoryID: json['categoryID'],
-      name: json['name'],
-      energyKcal: toDouble(json['energy_kcal']),
-      waterPercent: toDouble(json['water_percent']),
-      proteinPercent: toDouble(json['protein_percent']),
-      fatPercent: toDouble(json['fat_percent']),
-      carbohydratesPercent: toDouble(json['carbohydrates_percent']),
-      saturatedFaPercent: toDouble(json['saturatedfa_percent']),
-      cholesterolMg: toDouble(json['cholesterol_mg']),
-      monodisaccharidesPercent: toDouble(json['monodisaccharides_percen']),
-      starchPercent: toDouble(json['starch_percent']),
-      fiberPercent: toDouble(json['fiber_percent']),
-      organicAcidsPercent: toDouble(json['organicacids_percent']),
-      ashPercent: toDouble(json['ash_percent']),
-      sodiumMg: toDouble(json['sodium_mg']),
-      potassiumMg: toDouble(json['potassium_mg']),
-      calciumMg: toDouble(json['calcium_mg']),
-      magnesiumMg: toDouble(json['magnesium_mg']),
-      phosphorusMg: toDouble(json['phosphorus_mg']),
-      ironMg: toDouble(json['iron_mg']),
-      retinolUg: toDouble(json['retinol_ug']),
-      betaCaroteneUg: toDouble(json['betacarotene_ug']),
-      retinolEqUg: toDouble(json['retinoleq_ug']),
-      tocopherolEqMg: toDouble(json['tocopheroleq_mg']),
-      thiamineMg: toDouble(json['thiamine_mg']),
-      riboflavinMg: toDouble(json['riboflavin_mg']),
-      niacinMg: toDouble(json['niacin_mg']),
-      niacinEqMg: toDouble(json['niacineq_mg']),
-      ascorbicAcidMg: toDouble(json['ascorbicacid_mg']),
-      polyunsaturatedFaPercent: toDouble(json['polyunsaturatedfa_percent']),
-      ethanolPercent: toDouble(json['ethanol_percent']),
-      category: json['category'] != null ? CategoryModel.fromJson(json['category']) : null,
-    );
+  double? parseAndDivide(dynamic value) {
+    if (value == null) return null;
+    final numValue = (value as num).toDouble();
+    return numValue / 100;
   }
+
+  return ProductModel(
+    id: json['id'],
+    categoryID: json['categoryID'],
+    name: json['name'],
+    energyKcal: parseAndDivide(json['energy_kcal']),
+    waterPercent: parseAndDivide(json['water_percent']),
+    proteinPercent: parseAndDivide(json['protein_percent']),
+    fatPercent: parseAndDivide(json['fat_percent']),
+    carbohydratesPercent: parseAndDivide(json['carbohydrates_percent']),
+    saturatedFaPercent: parseAndDivide(json['saturatedfa_percent']),
+    cholesterolMg: parseAndDivide(json['cholesterol_mg']),
+    monodisaccharidesPercent: parseAndDivide(json['monodisaccharides_percen']),
+    starchPercent: parseAndDivide(json['starch_percent']),
+    fiberPercent: parseAndDivide(json['fiber_percent']),
+    organicAcidsPercent: parseAndDivide(json['organicacids_percent']),
+    ashPercent: parseAndDivide(json['ash_percent']),
+    sodiumMg: parseAndDivide(json['sodium_mg']),
+    potassiumMg: parseAndDivide(json['potassium_mg']),
+    calciumMg: parseAndDivide(json['calcium_mg']),
+    magnesiumMg: parseAndDivide(json['magnesium_mg']),
+    phosphorusMg: parseAndDivide(json['phosphorus_mg']),
+    ironMg: parseAndDivide(json['iron_mg']),
+    retinolUg: parseAndDivide(json['retinol_ug']),
+    betaCaroteneUg: parseAndDivide(json['betacarotene_ug']),
+    retinolEqUg: parseAndDivide(json['retinoleq_ug']),
+    tocopherolEqMg: parseAndDivide(json['tocopheroleq_mg']),
+    thiamineMg: parseAndDivide(json['thiamine_mg']),
+    riboflavinMg: parseAndDivide(json['riboflavin_mg']),
+    niacinMg: parseAndDivide(json['niacin_mg']),
+    niacinEqMg: parseAndDivide(json['niacineq_mg']),
+    ascorbicAcidMg: parseAndDivide(json['ascorbicacid_mg']),
+    polyunsaturatedFaPercent: parseAndDivide(json['polyunsaturatedfa_percent']),
+    ethanolPercent: parseAndDivide(json['ethanol_percent']),
+    category: json['category'] != null 
+        ? CategoryModel.fromJson(json['category']) 
+        : null,
+  );
+}
 
   Map<String, dynamic> toJson() => {
         'id': id,

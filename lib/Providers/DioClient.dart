@@ -8,6 +8,7 @@ class DioClient {
       connectTimeout: Duration(seconds: 10),
       receiveTimeout: Duration(seconds: 10),
       headers: {'Accept': 'application/json'},
+      validateStatus: (status) => status! < 500,
     ),
   )..interceptors.add(
       InterceptorsWrapper(
@@ -25,6 +26,16 @@ class DioClient {
         },
       ),
     );
+      static void addInterceptors() {
+    dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      requestBody: true,
+      responseHeader: true,
+      responseBody: true,
+      error: true,
+    ));
+  }
 
   static Dio get dio => _dio;
 }

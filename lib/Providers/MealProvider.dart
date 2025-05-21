@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '/Models/MealModel/MealModel.dart';
 import 'DioClient.dart';
@@ -21,6 +22,11 @@ class MealProvider with ChangeNotifier {
   DateTime? get startDate => _startDate;
   DateTime? get endDate => _endDate;
 
+  MealProvider() {
+    _endDate = DateTime.now();
+    _startDate = _endDate!.subtract(const Duration(days: 7));
+  }
+
   void setSearchQuery(String query) {
     _searchQuery = query.toLowerCase();
     notifyListeners();
@@ -31,21 +37,22 @@ class MealProvider with ChangeNotifier {
     notifyListeners();
   }
 
- 
-List<MealModel> get filteredMeals {
-  return _meals.where((meal) {
-    final matchesSearch = meal.product?.name
-            .toLowerCase()
-            .contains(_searchQuery.toLowerCase()) ??
-        false;
+  List<MealModel> get filteredMeals {
+    return _meals.where((meal) {
+      final matchesSearch =
+          meal.product?.name.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ) ??
+          false;
 
-    final matchesCategory = _selectedCategory == null ||
-        _selectedCategory == 'Все' ||
-        meal.product?.category?.name == _selectedCategory;
+      final matchesCategory =
+          _selectedCategory == null ||
+          _selectedCategory == 'Все' ||
+          meal.product?.category?.name == _selectedCategory;
 
-    return matchesSearch && matchesCategory;
-  }).toList();
-}
+      return matchesSearch && matchesCategory;
+    }).toList();
+  }
 
   Future<void> loadMeals({
     int? size,
@@ -103,6 +110,70 @@ List<MealModel> get filteredMeals {
     } else {
       throw Exception('Failed to load meals');
     }
+  }
+
+  Future<void> addMeal({
+    required int productID,
+    required int weight,
+    required DateTime time,
+  }) async {
+    try {
+      final response = await DioClient.dio.post(
+        APIS.meal,
+        data: {
+          'productID': productID, // Совпадает с именем из curl-примера
+          'weight': weight,
+          'time': time.toUtc().toIso8601String(),
+        },
+        options: Options(
+          headers: {
+            'accept': 'application/json', // Явно указываем заголовок accept
+            'Content-Type': 'application/json',
+          },
+          validateStatus: (status) => status! < 500,
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await loadMeals();
+        return;
+      }
+
+      final errorMessage =
+          response.data?['detail'] ?? 'Unknown error (${response.statusCode})';
+      throw Exception(errorMessage);
+    } on DioException catch (e) {
+      final errorData = e.response?.data?['detail'] ?? e.message;
+      throw Exception('Dio Error: $errorData');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
+
+  Future<void> deleteMeal(int mealId) async {
+    try {
+      final response = await DioClient.dio.delete(
+        APIS.meal,
+        queryParameters: {'id': mealId},
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+            'Authorization': 'Bearer your_token', // если требуется
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        _meals.removeWhere((m) => m.id == mealId);
+        notifyListeners();
+      }
+    } catch (e) {
+      throw Exception('Ошибка удаления: $e');
+    }
+  }
+
+  void restoreMeal(MealModel meal) {
+    _meals.add(meal);
+    notifyListeners();
   }
 
   // Future<List<MealModel>> fetchMeals({required startDate, required endDate}) async {

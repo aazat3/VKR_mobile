@@ -22,7 +22,7 @@ class _MainPageState extends State<MainPage> {
     // Запускаем метод загрузки данных после завершения фазы построения виджетов
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final mealProvider = Provider.of<MealProvider>(context, listen: false);
-      mealProvider.loadMeals();
+      mealProvider.loadMeals(endDate: selectedDate);
     });
   }
 
@@ -36,7 +36,7 @@ class _MainPageState extends State<MainPage> {
           mealProvider.isLoading
               ? const Center(child: CircularProgressIndicator())
               : RefreshIndicator(
-                onRefresh: () async => mealProvider.loadMeals(),
+                onRefresh: () async => mealProvider.loadMeals(endDate: selectedDate),
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(4),
@@ -74,7 +74,7 @@ class _MainPageState extends State<MainPage> {
                                     SizedBox(
                                       height: 50,
                                       child: CalorieCircleChart(
-                                        consumed: 1333,
+                                        consumed: 169,
                                         goal: 2000,
                                       ),
                                     ),
@@ -86,7 +86,7 @@ class _MainPageState extends State<MainPage> {
                                           color: Colors.white,
                                         ),
                                         Text(
-                                          '${1333.toStringAsFixed(0)}',
+                                          '${169.toStringAsFixed(0)}',
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -129,7 +129,7 @@ class _MainPageState extends State<MainPage> {
                                     const SizedBox(height: 50),
                                     SizedBox(
                                       height: 50,
-                                      child: WaterCircleChart(water: 50),
+                                      child: WaterCircleChart(water: 130.2),
                                     ),
                                     const SizedBox(height: 50),
                                     Row(
@@ -139,7 +139,7 @@ class _MainPageState extends State<MainPage> {
                                           color: Colors.white,
                                         ),
                                         Text(
-                                          '${1333.toStringAsFixed(0)}',
+                                          '${130.toStringAsFixed(0)}',
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -147,7 +147,7 @@ class _MainPageState extends State<MainPage> {
                                           ),
                                         ),
                                         Text(
-                                          '/${2000.toStringAsFixed(0)} ',
+                                          '/${2400.toStringAsFixed(0)} ',
                                           style: TextStyle(
                                             fontSize: 16,
                                             color: Colors.white60,
@@ -225,7 +225,7 @@ class _MainPageState extends State<MainPage> {
                                           text: TextSpan(
                                             children: [
                                               TextSpan(
-                                                text: '1333',
+                                                text: '2.64',
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
@@ -233,7 +233,7 @@ class _MainPageState extends State<MainPage> {
                                                 ),
                                               ),
                                               TextSpan(
-                                                text: '/2000',
+                                                text: '/120',
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   color: Colors.white60,
@@ -274,7 +274,7 @@ class _MainPageState extends State<MainPage> {
                                           text: TextSpan(
                                             children: [
                                               TextSpan(
-                                                text: '1333',
+                                                text: '0.88',
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
@@ -282,7 +282,7 @@ class _MainPageState extends State<MainPage> {
                                                 ),
                                               ),
                                               TextSpan(
-                                                text: '/2000',
+                                                text: '/80',
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   color: Colors.white60,
@@ -322,7 +322,7 @@ class _MainPageState extends State<MainPage> {
                                           text: TextSpan(
                                             children: [
                                               TextSpan(
-                                                text: '1333',
+                                                text: '36.96',
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
@@ -330,7 +330,7 @@ class _MainPageState extends State<MainPage> {
                                                 ),
                                               ),
                                               TextSpan(
-                                                text: '/2000',
+                                                text: '/200',
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   color: Colors.white60,
@@ -352,7 +352,7 @@ class _MainPageState extends State<MainPage> {
 
                       // Список съеденных продуктов
                       const Text(
-                        "Сегодняшние продукты",
+                        "Продукты",
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -367,8 +367,9 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => mealProvider.loadMeals(),
-        child: const Icon(Icons.refresh),
+        onPressed: () => mealProvider.loadMeals(endDate: selectedDate),
+        backgroundColor: Colors.teal,
+        child: const Icon(Icons.refresh, color: Colors.white,),
       ),
     );
   }
@@ -405,7 +406,6 @@ class DateSelector extends StatelessWidget {
             if (picked != null) {
               // mealProvider.setDateRange(picked);
               mealProvider.loadMeals(
-                startDate: picked.start,
                 endDate: picked.end,
               );
             }

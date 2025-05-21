@@ -25,13 +25,13 @@ class BJUBarChart extends StatelessWidget {
             centerSpaceRadius: 55, // Размер центрального отверстия
             sections: [
               PieChartSectionData(
-                value: 70,
+                value: 2.64,
                 color: Colors.blue,
                 radius: 10, // Радиус внешнего кольца
                 title: '',
               ),
               PieChartSectionData(
-                value: 70,
+                value: 120,
                 color: Colors.grey.shade300,
                 radius: 10, // Радиус внешнего кольца
                 title: '',
@@ -47,13 +47,13 @@ class BJUBarChart extends StatelessWidget {
             centerSpaceRadius: 30,
             sections: [
               PieChartSectionData(
-                value: 50,
+                value: 0.88,
                 color: Colors.green,
                 radius: 10, // Радиус среднего кольца
                 title: '',
               ),
               PieChartSectionData(
-                value: 70,
+                value: 100,
                 color: Colors.grey.shade300,
                 radius: 10, // Радиус внешнего кольца
                 title: '',
@@ -69,13 +69,13 @@ class BJUBarChart extends StatelessWidget {
             centerSpaceRadius: 10,
             sections: [
               PieChartSectionData(
-                value: 100,
+                value: 36.96,
                 color: Colors.red,
-                radius: 10, // Радиус внутреннего круга
+                radius: 10, // Радиус внутреннего кfруга
                 title: '',
               ),
               PieChartSectionData(
-                value: 70,
+                value: 100,
                 color: Colors.grey.shade300,
                 radius: 10, // Радиус внешнего кольца
                 title: '',

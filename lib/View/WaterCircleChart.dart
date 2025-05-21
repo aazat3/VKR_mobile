@@ -19,14 +19,14 @@ class WaterCircleChart extends StatelessWidget {
             centerSpaceRadius: 40,
             sections: [
               PieChartSectionData(
-                value: 1500,
+                value: 130.2,
                 title: '',
                 color: Color.fromARGB(255, 30, 84, 201),
                 radius: 25,
                 titleStyle: const TextStyle(color: Colors.white, fontSize: 14),
               ),
               PieChartSectionData(
-                value: 1000,
+                value: 2400,
                 title: '',
                 color: Colors.grey.shade300,
                 radius: 25,
@@ -36,7 +36,7 @@ class WaterCircleChart extends StatelessWidget {
           ),
         ),
         Text(
-                '${26.toStringAsFixed(0)}%',
+                '${5.toStringAsFixed(0)}%',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
