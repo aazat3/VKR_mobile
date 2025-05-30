@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Providers/CategoryProvider.dart';
+import 'package:flutter_application_1/Providers/GoalProvider.dart';
 import 'package:provider/provider.dart';
 
 import '/Theme/customLightTheme .dart';
@@ -21,6 +22,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => MealProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => GoalProvider()),
       ],
       child: const MyApp(),
     ),

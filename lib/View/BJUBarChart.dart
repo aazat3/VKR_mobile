@@ -2,19 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class BJUBarChart extends StatelessWidget {
-  final double protein;
-  final double fat;
-  final double carbs;
+  final double consumedProtein;
+  final double consumedFat;
+  final double consumedCarbs;
+  final double goalProtein;
+  final double goalFat;
+  final double goalCarb;
 
   const BJUBarChart({
     super.key,
-    required this.protein,
-    required this.fat,
-    required this.carbs,
+    required this.consumedProtein,
+    required this.consumedFat,
+    required this.consumedCarbs,
+    required this.goalProtein,
+    required this.goalFat,
+    required this.goalCarb,
   });
 
   @override
   Widget build(BuildContext context) {
+    final remainingProtein = (goalProtein - consumedProtein).clamp(
+      0,
+      goalProtein,
+    );
+    final remainingFat = (goalFat - consumedFat).clamp(0, goalFat);
+    final remainingCarb = (goalCarb - consumedCarbs).clamp(0, goalCarb);
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -25,13 +37,13 @@ class BJUBarChart extends StatelessWidget {
             centerSpaceRadius: 55, // Размер центрального отверстия
             sections: [
               PieChartSectionData(
-                value: 2.64,
+                value: consumedCarbs,
                 color: Colors.blue,
                 radius: 10, // Радиус внешнего кольца
                 title: '',
               ),
               PieChartSectionData(
-                value: 120,
+                value: remainingCarb.toDouble(),
                 color: Colors.grey.shade300,
                 radius: 10, // Радиус внешнего кольца
                 title: '',
@@ -47,13 +59,13 @@ class BJUBarChart extends StatelessWidget {
             centerSpaceRadius: 30,
             sections: [
               PieChartSectionData(
-                value: 0.88,
+                value: consumedFat,
                 color: Colors.green,
                 radius: 10, // Радиус среднего кольца
                 title: '',
               ),
               PieChartSectionData(
-                value: 100,
+                value: remainingFat.toDouble(),
                 color: Colors.grey.shade300,
                 radius: 10, // Радиус внешнего кольца
                 title: '',
@@ -69,77 +81,19 @@ class BJUBarChart extends StatelessWidget {
             centerSpaceRadius: 10,
             sections: [
               PieChartSectionData(
-                value: 36.96,
+                value: consumedProtein,
                 color: Colors.red,
                 radius: 10, // Радиус внутреннего кfруга
                 title: '',
               ),
               PieChartSectionData(
-                value: 100,
+                value: remainingProtein.toDouble(),
                 color: Colors.grey.shade300,
                 radius: 10, // Радиус внешнего кольца
                 title: '',
               ),
             ],
           ),
-        ),
-
-        // Текст в центре
-        // Text('75%', style: TextStyle(fontSize: 20)),
-      ],
-    );
-
-    // return BarChart(
-    //   BarChartData(
-    //     alignment: BarChartAlignment.spaceAround,
-    //     maxY: ([
-    //           protein,
-    //           fat,
-    //           carbs,
-    //         ].reduce((a, b) => a > b ? a : b) *
-    //         1.2), // немного отступа сверху
-    //     barGroups: [
-    //       _makeGroup(0, protein, Colors.green, 'Белки'),
-    //       _makeGroup(1, fat, Colors.orange, 'Жиры'),
-    //       _makeGroup(2, carbs, Colors.blue, 'Углеводы'),
-    //     ],
-    //     titlesData: FlTitlesData(
-    //       leftTitles: AxisTitles(
-    //         sideTitles: SideTitles(showTitles: true),
-    //       ),
-    //       bottomTitles: AxisTitles(
-    //         sideTitles: SideTitles(
-    //           showTitles: true,
-    //           getTitlesWidget: (value, _) {
-    //             switch (value.toInt()) {
-    //               case 0:
-    //                 return const Text('Белки');
-    //               case 1:
-    //                 return const Text('Жиры');
-    //               case 2:
-    //                 return const Text('Углеводы');
-    //               default:
-    //                 return const Text('');
-    //             }
-    //           },
-    //         ),
-    //       ),
-    //     ),
-    //     borderData: FlBorderData(show: false),
-    //     gridData: FlGridData(show: false),
-    //   ),
-    // );
-  }
-
-  BarChartGroupData _makeGroup(int x, double y, Color color, String label) {
-    return BarChartGroupData(
-      x: x,
-      barRods: [
-        BarChartRodData(
-          toY: y,
-          color: color,
-          width: 20,
-          borderRadius: BorderRadius.circular(6),
         ),
       ],
     );
