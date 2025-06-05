@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class DioClient {
   static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://aazatserver.ru/',
+      baseUrl: 'https://aazatserver.ru/', // ⬅ HTTPS вместо HTTP
       connectTimeout: Duration(seconds: 10),
       receiveTimeout: Duration(seconds: 10),
       headers: {'Accept': 'application/json'},
@@ -26,7 +26,8 @@ class DioClient {
         },
       ),
     );
-      static void addInterceptors() {
+
+  static void addInterceptors() {
     dio.interceptors.add(LogInterceptor(
       request: true,
       requestHeader: true,

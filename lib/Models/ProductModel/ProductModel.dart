@@ -4,6 +4,8 @@ class ProductModel {
   final int id;
   final int categoryID;
   final String name;
+  final int sourceTypeId;
+  final int? addedByUserId;
   final double? energyKcal;
   final double? waterPercent;
   final double? proteinPercent;
@@ -40,6 +42,8 @@ class ProductModel {
     required this.id,
     required this.categoryID,
     required this.name,
+    required this.sourceTypeId,
+    this.addedByUserId,
     this.energyKcal,
     this.waterPercent,
     this.proteinPercent,
@@ -74,85 +78,93 @@ class ProductModel {
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
-  double? parseAndDivide(dynamic value) {
-    if (value == null) return null;
-    final numValue = (value as num).toDouble();
-    return numValue / 100;
+    double? parseAndDivide(dynamic value) {
+      if (value == null) return null;
+      final numValue = (value as num).toDouble();
+      return numValue / 100;
+    }
+
+    return ProductModel(
+      id: json['id'],
+      categoryID: json['categoryID'],
+      name: json['name'],
+      sourceTypeId: json['source_type_id'] ?? 1,
+      addedByUserId: json['added_by_user_id'],
+      energyKcal: parseAndDivide(json['energy_kcal']),
+      waterPercent: parseAndDivide(json['water_percent']),
+      proteinPercent: parseAndDivide(json['protein_percent']),
+      fatPercent: parseAndDivide(json['fat_percent']),
+      carbohydratesPercent: parseAndDivide(json['carbohydrates_percent']),
+      saturatedFaPercent: parseAndDivide(json['saturatedfa_percent']),
+      cholesterolMg: parseAndDivide(json['cholesterol_mg']),
+      monodisaccharidesPercent: parseAndDivide(
+        json['monodisaccharides_percen'],
+      ),
+      starchPercent: parseAndDivide(json['starch_percent']),
+      fiberPercent: parseAndDivide(json['fiber_percent']),
+      organicAcidsPercent: parseAndDivide(json['organicacids_percent']),
+      ashPercent: parseAndDivide(json['ash_percent']),
+      sodiumMg: parseAndDivide(json['sodium_mg']),
+      potassiumMg: parseAndDivide(json['potassium_mg']),
+      calciumMg: parseAndDivide(json['calcium_mg']),
+      magnesiumMg: parseAndDivide(json['magnesium_mg']),
+      phosphorusMg: parseAndDivide(json['phosphorus_mg']),
+      ironMg: parseAndDivide(json['iron_mg']),
+      retinolUg: parseAndDivide(json['retinol_ug']),
+      betaCaroteneUg: parseAndDivide(json['betacarotene_ug']),
+      retinolEqUg: parseAndDivide(json['retinoleq_ug']),
+      tocopherolEqMg: parseAndDivide(json['tocopheroleq_mg']),
+      thiamineMg: parseAndDivide(json['thiamine_mg']),
+      riboflavinMg: parseAndDivide(json['riboflavin_mg']),
+      niacinMg: parseAndDivide(json['niacin_mg']),
+      niacinEqMg: parseAndDivide(json['niacineq_mg']),
+      ascorbicAcidMg: parseAndDivide(json['ascorbicacid_mg']),
+      polyunsaturatedFaPercent: parseAndDivide(
+        json['polyunsaturatedfa_percent'],
+      ),
+      ethanolPercent: parseAndDivide(json['ethanol_percent']),
+      category:
+          json['category'] != null
+              ? CategoryModel.fromJson(json['category'])
+              : null,
+    );
   }
 
-  return ProductModel(
-    id: json['id'],
-    categoryID: json['categoryID'],
-    name: json['name'],
-    energyKcal: parseAndDivide(json['energy_kcal']),
-    waterPercent: parseAndDivide(json['water_percent']),
-    proteinPercent: parseAndDivide(json['protein_percent']),
-    fatPercent: parseAndDivide(json['fat_percent']),
-    carbohydratesPercent: parseAndDivide(json['carbohydrates_percent']),
-    saturatedFaPercent: parseAndDivide(json['saturatedfa_percent']),
-    cholesterolMg: parseAndDivide(json['cholesterol_mg']),
-    monodisaccharidesPercent: parseAndDivide(json['monodisaccharides_percen']),
-    starchPercent: parseAndDivide(json['starch_percent']),
-    fiberPercent: parseAndDivide(json['fiber_percent']),
-    organicAcidsPercent: parseAndDivide(json['organicacids_percent']),
-    ashPercent: parseAndDivide(json['ash_percent']),
-    sodiumMg: parseAndDivide(json['sodium_mg']),
-    potassiumMg: parseAndDivide(json['potassium_mg']),
-    calciumMg: parseAndDivide(json['calcium_mg']),
-    magnesiumMg: parseAndDivide(json['magnesium_mg']),
-    phosphorusMg: parseAndDivide(json['phosphorus_mg']),
-    ironMg: parseAndDivide(json['iron_mg']),
-    retinolUg: parseAndDivide(json['retinol_ug']),
-    betaCaroteneUg: parseAndDivide(json['betacarotene_ug']),
-    retinolEqUg: parseAndDivide(json['retinoleq_ug']),
-    tocopherolEqMg: parseAndDivide(json['tocopheroleq_mg']),
-    thiamineMg: parseAndDivide(json['thiamine_mg']),
-    riboflavinMg: parseAndDivide(json['riboflavin_mg']),
-    niacinMg: parseAndDivide(json['niacin_mg']),
-    niacinEqMg: parseAndDivide(json['niacineq_mg']),
-    ascorbicAcidMg: parseAndDivide(json['ascorbicacid_mg']),
-    polyunsaturatedFaPercent: parseAndDivide(json['polyunsaturatedfa_percent']),
-    ethanolPercent: parseAndDivide(json['ethanol_percent']),
-    category: json['category'] != null 
-        ? CategoryModel.fromJson(json['category']) 
-        : null,
-  );
-}
-
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'categoryID': categoryID,
-        'name': name,
-        'energy_kcal': energyKcal,
-        'water_percent': waterPercent,
-        'protein_percent': proteinPercent,
-        'fat_percent': fatPercent,
-        'carbohydrates_percent': carbohydratesPercent,
-        'saturatedfa_percent': saturatedFaPercent,
-        'cholesterol_mg': cholesterolMg,
-        'monodisaccharides_percen': monodisaccharidesPercent,
-        'starch_percent': starchPercent,
-        'fiber_percent': fiberPercent,
-        'organicacids_percent': organicAcidsPercent,
-        'ash_percent': ashPercent,
-        'sodium_mg': sodiumMg,
-        'potassium_mg': potassiumMg,
-        'calcium_mg': calciumMg,
-        'magnesium_mg': magnesiumMg,
-        'phosphorus_mg': phosphorusMg,
-        'iron_mg': ironMg,
-        'retinol_ug': retinolUg,
-        'betacarotene_ug': betaCaroteneUg,
-        'retinoleq_ug': retinolEqUg,
-        'tocopheroleq_mg': tocopherolEqMg,
-        'thiamine_mg': thiamineMg,
-        'riboflavin_mg': riboflavinMg,
-        'niacin_mg': niacinMg,
-        'niacineq_mg': niacinEqMg,
-        'ascorbicacid_mg': ascorbicAcidMg,
-        'polyunsaturatedfa_percent': polyunsaturatedFaPercent,
-        'ethanol_percent': ethanolPercent,
-        'category' : category,
-
-      };
+    'id': id,
+    'categoryID': categoryID,
+    'name': name,
+    'source_type_id': sourceTypeId,
+    'added_by_user_id': addedByUserId,
+    'energy_kcal': energyKcal,
+    'water_percent': waterPercent,
+    'protein_percent': proteinPercent,
+    'fat_percent': fatPercent,
+    'carbohydrates_percent': carbohydratesPercent,
+    'saturatedfa_percent': saturatedFaPercent,
+    'cholesterol_mg': cholesterolMg,
+    'monodisaccharides_percen': monodisaccharidesPercent,
+    'starch_percent': starchPercent,
+    'fiber_percent': fiberPercent,
+    'organicacids_percent': organicAcidsPercent,
+    'ash_percent': ashPercent,
+    'sodium_mg': sodiumMg,
+    'potassium_mg': potassiumMg,
+    'calcium_mg': calciumMg,
+    'magnesium_mg': magnesiumMg,
+    'phosphorus_mg': phosphorusMg,
+    'iron_mg': ironMg,
+    'retinol_ug': retinolUg,
+    'betacarotene_ug': betaCaroteneUg,
+    'retinoleq_ug': retinolEqUg,
+    'tocopheroleq_mg': tocopherolEqMg,
+    'thiamine_mg': thiamineMg,
+    'riboflavin_mg': riboflavinMg,
+    'niacin_mg': niacinMg,
+    'niacineq_mg': niacinEqMg,
+    'ascorbicacid_mg': ascorbicAcidMg,
+    'polyunsaturatedfa_percent': polyunsaturatedFaPercent,
+    'ethanol_percent': ethanolPercent,
+    'category': category,
+  };
 }

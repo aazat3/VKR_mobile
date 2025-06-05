@@ -13,7 +13,7 @@ class ProductProvider with ChangeNotifier {
   bool _ascending = true;
 
   List<ProductModel> get products => _filteredProducts;
-  
+
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -49,7 +49,10 @@ class ProductProvider with ChangeNotifier {
     final Map<String, dynamic> queryParameters = {};
     if (name != null) queryParameters['name'] = name;
 
-    final response = await DioClient.dio.get(APIS.searchProduct, queryParameters: queryParameters,);
+    final response = await DioClient.dio.get(
+      APIS.searchProduct,
+      queryParameters: queryParameters,
+    );
     if (response.statusCode == 200) {
       return (response.data as List)
           .map((item) => ProductModel.fromJson(item))

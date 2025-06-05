@@ -23,7 +23,7 @@ class _DeviceProvisioningPageState extends State<DeviceProvisioningPage> {
   bool isConnected = false;
   BluetoothDevice? connectedDevice;
   String status = "Нажмите 'Поиск устройств' для начала сканирования";
-  // final TextEditingController ssidController = TextEditingController();
+  final TextEditingController ssidController = TextEditingController();
   List<WiFiAccessPoint> wifiList = [];
   // WiFiAccessPoint? selectedNetwork;
   String? selectedSSID;
@@ -92,14 +92,14 @@ class _DeviceProvisioningPageState extends State<DeviceProvisioningPage> {
   }
 
   Future<void> sendCredentials() async {
-    if (selectedSSID == null || selectedSSID!.isEmpty) {
+    if (ssidController.text.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Выберите Wi-Fi сеть")));
+      ).showSnackBar(const SnackBar(content: Text("Выберите или введите Wi-Fi сеть")));
       return;
     }
 
-    final ssid = selectedSSID!;
+    final ssid = ssidController.text!;
     final password = passwordController.text;
     final credentials = "$ssid:$password";
 
@@ -169,7 +169,7 @@ class _DeviceProvisioningPageState extends State<DeviceProvisioningPage> {
 
     setState(() {
       wifiList = results;
-      status = "Выберите Wi-Fi сеть";
+      status = "Выберите или введите Wi-Fi сеть";
     });
   }
 
@@ -219,10 +219,18 @@ class _DeviceProvisioningPageState extends State<DeviceProvisioningPage> {
                     ),
                   )
                   .toList(),
-          onChanged: (ssid) => setState(() => selectedSSID = ssid),
+          onChanged: (ssid) => setState(() => ssidController.text = ssid ?? ""),
           value: selectedSSID,
           decoration: const InputDecoration(
-            labelText: "Выберите Wi-Fi сеть",
+            labelText: "Выберите или введите Wi-Fi сеть",
+            prefixIcon: Icon(Icons.wifi),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: ssidController,
+          decoration: const InputDecoration(
+            labelText: "SSID сети",
             prefixIcon: Icon(Icons.wifi),
           ),
         ),

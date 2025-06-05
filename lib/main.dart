@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '/Theme/customLightTheme .dart';
 
-import 'Pages/HomePage.dart';
+import 'Pages/HomePage.dart'; 
 import '/Pages/LoginPage.dart';
 
 import 'Providers/AuthProvider.dart';
