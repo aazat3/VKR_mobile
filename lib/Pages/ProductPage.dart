@@ -1,5 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Pages/ProductDetailScreen.dart';
+import 'package:flutter_application_1/Pages/AddProductPage.dart';
 import 'package:flutter_application_1/View/ProductCard.dart';
 import 'package:provider/provider.dart';
 import '/Providers/ProductProvider.dart';
@@ -14,34 +16,195 @@ class ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   final TextEditingController _searchController = TextEditingController();
+  List<ProductModel> _searchResults = [];
+  bool _isSearching = false;
+  String? _searchError;
+  Timer? _searchDebounce;
+  String _currentSort = 'id';
 
   @override
   void initState() {
     super.initState();
+    _searchController.addListener(_onSearchChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadProducts();
+      Provider.of<ProductProvider>(context, listen: false).loadProducts();
+      Provider.of<ProductProvider>(context, listen: false).loadCategories();
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchDebounce?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadProducts() async {
     await Provider.of<ProductProvider>(context, listen: false).loadProducts();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Каталог продуктов'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () => _showSearch(context),
-          ),
-          _buildSortMenu(),
-        ],
+  void _onSearchChanged() {
+    if (_searchDebounce?.isActive ?? false) _searchDebounce?.cancel();
+
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      if (_searchController.text.isEmpty) {
+        setState(() {
+          _searchResults = [];
+          _searchError = null;
+        });
+        return;
+      }
+      _performSearch(_searchController.text);
+    });
+  }
+
+  Future<void> _performSearch(String query) async {
+    setState(() {
+      _isSearching = true;
+      _searchError = null;
+    });
+
+    try {
+      final results = await context.read<ProductProvider>().searchLoadProducts(
+        name: query,
+      );
+      setState(() {
+        _searchResults = results;
+        _isSearching = false;
+      });
+    } catch (e) {
+      setState(() {
+        _searchError = e.toString();
+        _isSearching = false;
+      });
+    }
+  }
+
+  void _handleSort(String value) {
+    setState(() {
+      _currentSort = value;
+
+      // Сортируем результаты поиска, если поиск активен
+      if (_searchController.text.isNotEmpty) {
+        _searchResults = _applySort(_searchResults);
+      } else {
+        // Если поиск не активен — обновляем сортировку в провайдере
+        Provider.of<ProductProvider>(context, listen: false).sortBy(value);
+      }
+    });
+  }
+
+  List<ProductModel> _applySort(List<ProductModel> list) {
+    final sorted = [...list];
+    sorted.sort((a, b) {
+      switch (_currentSort) {
+        case 'name':
+          return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        case 'calories':
+          return a.energyKcal!.compareTo(b.energyKcal!.toDouble());
+        case 'id':
+        default:
+          return a.id.compareTo(b.id);
+      }
+    });
+    return sorted;
+  }
+
+  void _navigateToAddProduct() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AddProductPage()),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchController,
+      decoration: InputDecoration(
+        labelText: 'Поиск продукта',
+        prefixIcon: const Icon(Icons.search),
+        suffixIcon:
+            _isSearching
+                ? const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+                : (_searchController.text.isNotEmpty
+                    ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        FocusScope.of(context).unfocus();
+                      },
+                    )
+                    : null),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      body: _buildBody(),
-      floatingActionButton: _buildAddButton(),
+    );
+  }
+
+  Widget _buildSortMenu() {
+    return PopupMenuButton<String>(
+      onSelected: _handleSort,
+      itemBuilder:
+          (_) => const [
+            PopupMenuItem(value: 'id', child: Text('По ID')),
+            PopupMenuItem(value: 'name', child: Text('По названию')),
+            PopupMenuItem(value: 'calories', child: Text('По калориям')),
+          ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Column(
+      children: [
+        Padding(padding: const EdgeInsets.all(12), child: _buildSearchField()),
+        if (_searchError != null)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Ошибка: $_searchError',
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.fastfood_outlined,
+                  size: 80,
+                  color: Colors.grey.shade400,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Продуктов не найдено',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Нажмите "+" чтобы добавить новый продукт',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAddButton() {
+    return FloatingActionButton(
+      heroTag: 'add_product',
+      onPressed: () => _navigateToAddProduct(),
+      backgroundColor: Colors.teal,
+      child: const Icon(Icons.add, color: Colors.white),
     );
   }
 
@@ -56,216 +219,56 @@ class _ProductPageState extends State<ProductPage> {
           return Center(child: Text('Ошибка: ${provider.error}'));
         }
 
-        if (provider.products.isEmpty) {
+        final productsToShow =
+            _searchResults.isNotEmpty || _searchController.text.isNotEmpty
+                ? _searchResults
+                : provider.products;
+
+        if (productsToShow.isEmpty) {
           return _buildEmptyState();
         }
 
         return RefreshIndicator(
           onRefresh: _loadProducts,
-          child: ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: provider.products.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 0),
-            itemBuilder: (_, index) => Productcard(product : provider.products[index]),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: _buildSearchField(),
+              ),
+              if (_searchError != null)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Ошибка: $_searchError',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: productsToShow.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder:
+                      (_, index) => Productcard(product: productsToShow[index]),
+                ),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  Widget _buildSortMenu() {
-    return PopupMenuButton<String>(
-      onSelected: (value) => _handleSort(value),
-      itemBuilder: (BuildContext context) => [
-        const PopupMenuItem(value: 'id', child: Text('По ID')),
-        const PopupMenuItem(value: 'name', child: Text('По названию')),
-        const PopupMenuItem(value: 'calories', child: Text('По калориям')),
-      ],
-    );
-  }
-
-  Widget _buildProductCard(ProductModel product) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _showProductDetails(product),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              _buildProductIcon(),
-              const SizedBox(width: 16),
-              _buildProductInfo(product),
-              _buildProductActions(product),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProductIcon() {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      alignment: Alignment.center,
-      child: Icon(Icons.fastfood, color: Colors.grey.shade600),
-    );
-  }
-
-  Widget _buildProductInfo(ProductModel product) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            product.name,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '${product.energyKcal} ккал / 100г',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProductActions(ProductModel product) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Chip(
-          label: Text('ID: ${product.id}'),
-          backgroundColor: Colors.blue.shade50,
-          labelStyle: const TextStyle(color: Colors.blue),
-        ),
-        IconButton(
-          icon: Icon(Icons.info_outline, color: Colors.grey.shade600),
-          onPressed: () => _showProductDetails(product),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.fastfood_outlined, size: 80, color: Colors.grey.shade400),
-          const SizedBox(height: 20),
-          const Text(
-            'Продуктов не найдено',
-            style: TextStyle(fontSize: 18, color: Colors.grey),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Нажмите "+" чтобы добавить новый продукт',
-            style: TextStyle(color: Colors.grey.shade600),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAddButton() {
-    return FloatingActionButton(
-      heroTag: 'add_product',
-      onPressed: () => _navigateToAddProduct(),
-      backgroundColor: Colors.teal,
-      child: const Icon(Icons.add, color: Colors.white),
-    );
-  }
-
-  void _showSearch(BuildContext context) {
-    showSearch(
-      context: context,
-      delegate: ProductSearchDelegate(
-        products: Provider.of<ProductProvider>(context, listen: false).products,
-        delegateContext: context,
-      ),
-    );
-  }
-
-  void _handleSort(String value) {
-    Provider.of<ProductProvider>(context, listen: false).sortBy(value);
-  }
-
-  void _navigateToAddProduct() {
-    // Navigator.push(context, MaterialPageRoute(builder: (_) => AddProductPage()));
-  }
-
-  void _showProductDetails(ProductModel product) {
-    Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ProductDetailScreen(product: product),
-    ),
-  );
-  }
-
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-}
-
-class ProductSearchDelegate extends SearchDelegate<String> {
-  final List<ProductModel> products;
-  final BuildContext delegateContext;
-
-  ProductSearchDelegate({
-    required this.products,
-    required this.delegateContext,
-  });
-
-  @override
-  List<Widget> buildActions(BuildContext context) => [
-    IconButton(
-      icon: const Icon(Icons.clear),
-      onPressed: () => query = '',
-    ),
-  ];
-
-  @override
-  Widget buildLeading(BuildContext context) => IconButton(
-    icon: const Icon(Icons.arrow_back),
-    onPressed: () => close(context, ''),
-  );
-
-  @override
-  Widget buildResults(BuildContext context) => _buildSearchList(context);
-
-  @override
-  Widget buildSuggestions(BuildContext context) => _buildSearchList(context);
-
-  Widget _buildSearchList(BuildContext context) {
-    final filtered = products.where((p) => 
-      p.name.toLowerCase().contains(query.toLowerCase())
-    ).toList();
-
-    return ListView.builder(
-      itemCount: filtered.length,
-      itemBuilder: (_, i) => ListTile(
-        title: Text(filtered[i].name),
-        subtitle: Text('${filtered[i].energyKcal} ккал'),
-        onTap: () => close(context, filtered[i].id.toString()),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Каталог продуктов'),
+        actions: [_buildSortMenu()],
       ),
+      body: _buildBody(),
+      floatingActionButton: _buildAddButton(),
     );
   }
 }

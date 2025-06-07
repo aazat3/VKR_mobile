@@ -13,7 +13,7 @@ class GoalProvider with ChangeNotifier {
     'carbs': 40,
   };
 
-  late Map<String, dynamic> _goals;
+late Map<String, dynamic> _goals = Map.from(_defaultGoals);
   Map<String, dynamic> get goals => _goals;
   GoalProvider() {
     _loadGoals();

@@ -52,19 +52,19 @@ Widget build(BuildContext context) {
               children: [
                 const SizedBox(width: 8),
                 Text(
-                  'Э- ${((product.energyKcal ?? 0)).toStringAsFixed(1)} ккал',
+                  '${((product.energyKcal ?? 0)).toStringAsFixed(1)} ккал',
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Б- ${((product.proteinPercent ?? 0)).toStringAsFixed(1)} г',
+                  'Б-${((product.proteinPercent ?? 0)).toStringAsFixed(1)} г',
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Ж- ${((product.fatPercent ?? 0)).toStringAsFixed(1)} г',
+                  'Ж-${((product.fatPercent ?? 0)).toStringAsFixed(1)} г',
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'У- ${((product.carbohydratesPercent ?? 0)).toStringAsFixed(1)} г',
+                  'У-${((product.carbohydratesPercent ?? 0)).toStringAsFixed(1)} г',
                 ),
               ],
             ),

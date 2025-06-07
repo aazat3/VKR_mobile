@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Models/CategoryModel/CategoryModel.dart';
 import '/Models/ProductModel/ProductModel.dart';
 import 'DioClient.dart';
 import 'package:flutter_application_1/ApiList.dart';
@@ -6,6 +8,8 @@ import 'package:flutter_application_1/ApiList.dart';
 class ProductProvider with ChangeNotifier {
   List<ProductModel> _allProducts = [];
   List<ProductModel> _filteredProducts = [];
+  List<CategoryModel> _categories = [];
+  List<CategoryModel> get categories => _categories;
   bool _isLoading = false;
   String? _error;
   String _searchQuery = '';
@@ -59,6 +63,60 @@ class ProductProvider with ChangeNotifier {
           .toList();
     }
     throw Exception('Ошибка сервера: ${response.statusCode}');
+  }
+
+  Future<List<CategoryModel>> loadCategories() async {
+    final response = await DioClient.dio.get(APIS.category);
+    if (response.statusCode == 200) {
+      final data = response.data as List;
+      return _categories =
+          data.map((json) => CategoryModel.fromJson(json)).toList();
+    }
+    notifyListeners();
+    throw Exception('Ошибка сервера: ${response.statusCode}');
+  }
+
+  Future<void> addProduct(ProductModel product) async {
+    try {
+      // Создаём Map без ключа 'id'
+      final productMap = Map<String, dynamic>.from(product.toJson());
+      productMap.remove('id');
+
+      print('Sending product data: $productMap');
+
+      final response = await DioClient.dio.post(
+        APIS.product,
+        data: productMap,
+        options: Options(
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _allProducts.add(product);
+        notifyListeners();
+        return;
+      }
+
+      final errorMessage =
+          response.data?['detail'] ?? 'Unknown error (${response.statusCode})';
+      throw Exception(errorMessage);
+    } on DioException catch (e) {
+      print('DioException caught: ${e.message}');
+      print('DioException response: ${e.response?.data}');
+      final errorData = e.response?.data?['detail'] ?? e.message;
+      throw Exception('Dio Error: $errorData');
+    } catch (e) {
+      print('Unexpected error caught: $e');
+      throw Exception('Unexpected error: $e');
+    }
   }
 
   void sortBy(String field) {
